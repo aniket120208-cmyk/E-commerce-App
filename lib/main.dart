@@ -55,6 +55,20 @@ class ZorixHomeScreen extends StatelessWidget {
         ),
       ],
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
+        selectedFontSize: 10,
+        unselectedFontSize: 10,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded, size: 20), label: 'DISCOVER'),
+          BottomNavigationBarItem(icon: Icon(Icons.search, size: 20), label: 'EXPLORE'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_outlined, size: 20), label: 'BAG'),
+          BottomNavigationBarItem(icon: Icon(Icons.local_shipping_outlined, size: 20), label: 'ORDERS'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 20), label: 'PROFILE'),
+        ],
+      ),
     );
   }
 }
