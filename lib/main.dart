@@ -2,14 +2,73 @@ import 'package:flutter/material.dart';
 import 'package:e_commerce_app/data/product_data.dart';
 import 'package:e_commerce_app/widgets/item_card.dart';
 import 'package:e_commerce_app/screens/product_details_screens.dart';
+import 'package:e_commerce_app/screens/cart_screens.dart';
+import 'package:e_commerce_app/screens/orders_screen.dart';
+import 'package:e_commerce_app/screens/profile_screen.dart';
+import 'package:e_commerce_app/utils/app_nav.dart';
 
 void main() {
   runApp(
     const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ZorixHomeScreen(),
+      home: MainNavScreen(),
     ),
   );
+}
+
+class MainNavScreen extends StatefulWidget {
+  const MainNavScreen({super.key});
+
+  @override
+  State<MainNavScreen> createState() => _MainNavScreenState();
+}
+
+class _MainNavScreenState extends State<MainNavScreen> {
+  final List<Widget> _screens = const [
+    ZorixHomeScreen(),
+    Center(child: Text('Explore')),
+    CartScreen(),
+    OrdersScreen(),
+    ProfileScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: AppNav.tab,
+      builder: (context, currentIndex, _) => Scaffold(
+      body: IndexedStack(index: currentIndex, children: _screens),
+      bottomNavigationBar: AnimatedBuilder(
+        animation: CartManager(),
+        builder: (context, _) {
+          return BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            currentIndex: currentIndex,
+            onTap: (index) => AppNav.tab.value = index,
+            selectedItemColor: Colors.black,
+            unselectedItemColor: Colors.grey,
+            selectedFontSize: 10,
+            unselectedFontSize: 10,
+            items: [
+              const BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded, size: 20), label: 'DISCOVER'),
+              const BottomNavigationBarItem(icon: Icon(Icons.search, size: 20), label: 'EXPLORE'),
+              BottomNavigationBarItem(
+                icon: Badge(
+                  label: Text('${CartManager().itemCount}'),
+                  isLabelVisible: CartManager().itemCount > 0,
+                  child: const Icon(Icons.shopping_bag_outlined, size: 20),
+                ),
+                label: 'BAG',
+              ),
+              const BottomNavigationBarItem(icon: Icon(Icons.local_shipping_outlined, size: 20), label: 'ORDERS'),
+              const BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 20), label: 'PROFILE'),
+            ],
+          );
+        },
+      ),
+      ),
+    );
+  }
 }
 
 class ZorixHomeScreen extends StatefulWidget {
@@ -20,6 +79,25 @@ class ZorixHomeScreen extends StatefulWidget {
 }
 
 class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
+  int _selectedCategoryIndex = 0;
+  int _selectedChipIndex = 0;
+
+  final List<Map<String, dynamic>> _categories = const [
+    {'title': 'NEW IN', 'icon': Icons.local_fire_department},
+    {'title': 'BESTSELLERS', 'icon': Icons.bolt},
+    {'title': 'OUTERWEAR', 'icon': Icons.checkroom},
+    {'title': 'TAILORING', 'icon': Icons.military_tech_outlined},
+    {'title': 'NEW DROP', 'icon': Icons.accessibility_new},
+  ];
+
+  final List<String> _chips = const [
+    'All Pieces',
+    'Outerwear',
+    'Tailored',
+    'Knitwear',
+    'Accessories',
+  ];
+
   @override
   Widget build(BuildContext context) {
     final List<Widget> sections = [
@@ -27,13 +105,19 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
         width: double.infinity,
         color: Colors.black,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             Icon(Icons.flash_on, color: Colors.white, size: 12),
             SizedBox(width: 4),
-            Text('FLASH SALE: EXTRA 20% OFF WITH CODE ZORIX20',
-                style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+            Text(
+              'FLASH SALE: EXTRA 20% OFF WITH CODE ZORIX20',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
@@ -42,41 +126,46 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          itemCount: 5,
+          itemCount: _categories.length,
           separatorBuilder: (_, __) => const SizedBox(width: 14),
           itemBuilder: (context, index) {
-            final categories = [
-              {'title': 'NEW IN', 'icon': Icons.local_fire_department, 'active': true},
-              {'title': 'BESTSELLERS', 'icon': Icons.bolt, 'active': false},
-              {'title': 'OUTERWEAR', 'icon': Icons.checkroom, 'active': false},
-              {'title': 'TAILORING', 'icon': Icons.military_tech_outlined, 'active': false},
-              {'title': 'NEW DROP', 'icon': Icons.accessibility_new, 'active': false},
-            ];
-            final cat = categories[index];
-            final bool active = cat['active'] as bool;
-            return Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: active ? const Color(0xFFBC4B27) : Colors.grey.shade300,
-                      width: 1.5,
+            final cat = _categories[index];
+            final bool active = _selectedCategoryIndex == index;
+            return GestureDetector(
+              onTap: () => setState(() => _selectedCategoryIndex = index),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: active ? const Color(0xFFBC4B27) : Colors.grey.shade300,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: active ? const Color(0xFFBC4B27) : const Color(0xFFEDEAE4),
+                      child: Icon(
+                        cat['icon'] as IconData,
+                        size: 16,
+                        color: active ? Colors.white : Colors.black87,
+                      ),
                     ),
                   ),
-                  child: CircleAvatar(
-                    radius: 20,
-                    backgroundColor: active ? const Color(0xFFBC4B27) : const Color(0xFFEDEAE4),
-                    child: Icon(cat['icon'] as IconData, size: 16, color: active ? Colors.white : Colors.black87),
+                  const SizedBox(height: 4),
+                  Text(
+                    cat['title'] as String,
+                    style: TextStyle(
+                      fontSize: 8,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.5,
+                      color: active ? const Color(0xFFBC4B27) : Colors.black87,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  cat['title'] as String,
-                  style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w700, letterSpacing: 0.5),
-                ),
-              ],
+                ],
+              ),
             );
           },
         ),
@@ -86,15 +175,23 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text('• NEW ARRIVALS', style: TextStyle(color: Color(0xFFBC4B27), fontSize: 10, fontWeight: FontWeight.bold)),
+              children: [
+                Text(
+                  '• NEW ARRIVALS',
+                  style: TextStyle(
+                    color: Color(0xFFBC4B27),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 6),
-            const Text('Spring / Summer 2025', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
-            const Text('Sculptural minimalism through untamed Italian craftsmanship.', style: TextStyle(color: Colors.black54, fontSize: 12)),
+            const Text('Spring / Summer 2026', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+            const Text('Sculptural minimalism through untamed Italian craftsmanship.',
+                style: TextStyle(color: Colors.black54, fontSize: 12)),
             const SizedBox(height: 12),
             Container(
               height: 380,
@@ -126,9 +223,15 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('EDITORIAL SPOTLIGHT', style: TextStyle(color: Colors.white70, fontSize: 9, letterSpacing: 1.2)),
+                        const Text(
+                          'EDITORIAL SPOTLIGHT',
+                          style: TextStyle(color: Colors.white70, fontSize: 9, letterSpacing: 1.2),
+                        ),
                         const SizedBox(height: 4),
-                        const Text('The Sculpted Silhouette', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                        const Text(
+                          'The Sculpted Silhouette',
+                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
                         const SizedBox(height: 6),
                         const Text(
                           'Fluid silk trenches, structured lapels, and hand-stitched worsted wool engineered for effortless movement.',
@@ -143,7 +246,8 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                           ),
-                          child: const Text('Explore Collection →', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                          child: const Text('Explore Collection →',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -154,11 +258,11 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
           ],
         ),
       ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      const Padding(
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
+          children: [
             Text('Exclusive App Vouchers', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
             Text('CLICK TO CLAIM', style: TextStyle(color: Colors.grey, fontSize: 9)),
           ],
@@ -178,21 +282,25 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('APP FIRST ORDER', style: TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold)),
+                    children: [
+                      Text('APP FIRST ORDER',
+                          style: TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold)),
                       Text('Expires in 2d', style: TextStyle(color: Colors.white54, fontSize: 8)),
                     ],
                   ),
-                  const Text('\$25 OFF', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                  const Text('Min. order \$120 on all collections', style: TextStyle(color: Colors.white, fontSize: 9), maxLines: 1),
+                  const Text('\$25 OFF',
+                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  const Text('Min. order \$120 on all collections',
+                      style: TextStyle(color: Colors.white, fontSize: 9), maxLines: 1),
                   Container(
                     width: double.infinity,
                     height: 24,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                    child: const Text('CLAIM', style: TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.bold)),
+                    child: const Text('CLAIM',
+                        style: TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -206,21 +314,25 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text('VIP EXCLUSIVE', style: TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold)),
+                    children: [
+                      Text('VIP EXCLUSIVE',
+                          style: TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold)),
                       Text('Auto applied', style: TextStyle(color: Colors.white54, fontSize: 8)),
                     ],
                   ),
-                  const Text('15% EXTRA', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                  const Text('Applies automatically to Silk & Cashmere', style: TextStyle(color: Colors.white, fontSize: 9), maxLines: 1),
+                  const Text('15% EXTRA',
+                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  const Text('Applies automatically to Silk & Cashmere',
+                      style: TextStyle(color: Colors.white, fontSize: 9), maxLines: 1),
                   Container(
                     width: double.infinity,
                     height: 24,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(12)),
-                    child: const Text('CLAIM', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                    child: const Text('CLAIM',
+                        style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -235,25 +347,27 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: 5,
+            itemCount: _chips.length,
             separatorBuilder: (_, __) => const SizedBox(width: 8),
             itemBuilder: (context, i) {
-              final chips = ['All Pieces', 'Outerwear', 'Tailored', 'Knitwear', 'Accessories'];
-              final isSelected = i == 0;
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: isSelected ? Colors.black : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: isSelected ? Colors.black : Colors.grey.shade300),
-                ),
-                child: Text(
-                  chips[i],
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
+              final isSelected = _selectedChipIndex == i;
+              return GestureDetector(
+                onTap: () => setState(() => _selectedChipIndex = i),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.black : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: isSelected ? Colors.black : Colors.grey.shade300),
+                  ),
+                  child: Text(
+                    _chips[i],
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               );
@@ -271,18 +385,22 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text('• PRIVATE ZORIX DROP', style: TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold)),
+              children: [
+                Text('• PRIVATE ZORIX DROP',
+                    style: TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold)),
                 Text('LIMITED 150 UNITS', style: TextStyle(color: Colors.white54, fontSize: 8)),
               ],
             ),
             const SizedBox(height: 6),
-            const Text('The Tuscan Silk Capsule', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text('The Tuscan Silk Capsule',
+                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            const Text('Numbered edition of 150 units. Pure raw mulberry silk tailored in Florence.',
-                style: TextStyle(color: Colors.white60, fontSize: 10)),
+            const Text(
+              'Numbered edition of 150 units. Pure raw mulberry silk tailored in Florence.',
+              style: TextStyle(color: Colors.white60, fontSize: 10),
+            ),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -297,7 +415,8 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                     decoration: BoxDecoration(color: const Color(0xFF232323), borderRadius: BorderRadius.circular(6)),
                     child: Column(
                       children: [
-                        Text(unit['val']!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                        Text(unit['val']!,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                         Text(unit['unit']!, style: const TextStyle(color: Colors.white54, fontSize: 7)),
                       ],
                     ),
@@ -317,7 +436,8 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
-                    child: const Text('Claim VIP Reservation', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    child: const Text('Claim VIP Reservation',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -333,21 +453,24 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
           ],
         ),
       ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      const Padding(
+        padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text('SELECTED FOR YOU', style: TextStyle(color: Color(0xFFBC4B27), fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1)),
+              children: [
+                Text(
+                  'SELECTED FOR YOU',
+                  style: TextStyle(color: Color(0xFFBC4B27), fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 1),
+                ),
                 SizedBox(height: 2),
                 Text('Curated Essentials', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ],
             ),
             Row(
-              children: const [
+              children: [
                 Icon(Icons.tune, size: 14, color: Colors.grey),
                 SizedBox(width: 4),
                 Text('Filter & Sort', style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.w600)),
@@ -359,7 +482,7 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: GridView.builder(
-          itemCount: products.length,
+          itemCount: clothingProducts.length,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -369,26 +492,35 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
             childAspectRatio: 0.65,
           ),
           itemBuilder: (context, itemIdx) {
-            final item = products[itemIdx];
-            return InkWell
-            ( onTap: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                builder: (context) => ProductDetailsScreen(product: item),
-                ),
-              );
-            },
-              child: 
-            ProductItemCard(
-              brand: item['brand']!,
-              title: item['title']!,
-              price: item['price']!,
-              originalPrice: item['originalPrice']!,
-              discountTag: item['badge']!,
-              imageUrl: item['image']!,
-              onFavoriteTap: () {},
-              onAddTap: () {},)
+            final product = clothingProducts[itemIdx];
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProductDetailsScreen(product: product),
+                  ),
+                );
+              },
+              child: ProductItemCard(
+                product: product,
+                onFavoriteTap: () {},
+                onAddTap: () {
+                  CartManager().add(
+                    product,
+                    product.defaultSize,
+                    product.defaultColor,
+                  );
+                  ScaffoldMessenger.of(context)
+                    ..clearSnackBars()
+                    ..showSnackBar(
+                      SnackBar(
+                        content: Text('${product.title} added to bag'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                },
+              ),
             );
           },
         ),
@@ -418,14 +550,15 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                 ),
               ),
             ),
-            Positioned(
+            const Positioned(
               bottom: 16,
               left: 16,
               right: 16,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text('WINTER COLLECTIONS ARE OUT', style: TextStyle(color: Colors.white60, fontSize: 8, letterSpacing: 1.2)),
+                children: [
+                  Text('WINTER COLLECTIONS ARE OUT',
+                      style: TextStyle(color: Colors.white60, fontSize: 8, letterSpacing: 1.2)),
                   SizedBox(height: 4),
                   Text('Luxury items for luxury people.',
                       style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
@@ -433,7 +566,8 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                   Text('The best for your friends and family.',
                       style: TextStyle(color: Colors.white70, fontSize: 10)),
                   SizedBox(height: 10),
-                  Text('Explore Collections →', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  Text('Explore Collections →',
+                      style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -460,9 +594,9 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                   style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
             ),
             const SizedBox(width: 8),
-            Column(
+            const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text('ZORIX',
                     style: TextStyle(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 13, letterSpacing: 1.5)),
                 Text('CLOTHING',
@@ -482,20 +616,6 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
               child: Icon(Icons.person, size: 16, color: Colors.white),
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        selectedFontSize: 10,
-        unselectedFontSize: 10,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded, size: 20), label: 'DISCOVER'),
-          BottomNavigationBarItem(icon: Icon(Icons.search, size: 20), label: 'EXPLORE'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_bag_outlined, size: 20), label: 'BAG'),
-          BottomNavigationBarItem(icon: Icon(Icons.local_shipping_outlined, size: 20), label: 'ORDERS'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 20), label: 'PROFILE'),
         ],
       ),
       body: ListView.builder(
