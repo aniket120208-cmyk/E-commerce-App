@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:e_commerce_app/data/product_data.dart';
 import 'package:e_commerce_app/widgets/item_card.dart';
+import 'package:e_commerce_app/screens/product_details_screens.dart';
 
 void main() {
   runApp(
@@ -369,7 +370,17 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
           ),
           itemBuilder: (context, itemIdx) {
             final item = products[itemIdx];
-            return ProductItemCard(
+            return InkWell
+            ( onTap: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                builder: (context) => ProductDetailsScreen(product: item),
+                ),
+              );
+            },
+              child: 
+            ProductItemCard(
               brand: item['brand']!,
               title: item['title']!,
               price: item['price']!,
@@ -377,7 +388,7 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
               discountTag: item['badge']!,
               imageUrl: item['image']!,
               onFavoriteTap: () {},
-              onAddTap: () {},
+              onAddTap: () {},)
             );
           },
         ),
