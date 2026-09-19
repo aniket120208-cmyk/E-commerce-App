@@ -27,6 +27,13 @@ class Product {
     required this.care,
   });
 
+  List<String> get availableSizes =>
+      sizes.isNotEmpty ? sizes : const ['XS', 'S', 'M', 'L', 'XL'];
+  List<String> get availableColors =>
+      colors.isNotEmpty ? colors : const ['Classic'];
+  String get defaultSize => availableSizes.first;
+  String get defaultColor => availableColors.first;
+
   factory Product.fromMap(Map<String, dynamic> map) {
     return Product(
       id: map['id'] as String,
