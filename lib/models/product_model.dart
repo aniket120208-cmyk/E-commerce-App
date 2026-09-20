@@ -11,6 +11,7 @@ class Product {
   final List<String> colors;
   final String material;
   final String care;
+  final String category;
 
   const Product({
     required this.id,
@@ -25,6 +26,7 @@ class Product {
     required this.colors,
     required this.material,
     required this.care,
+    required this.category,
   });
 
   List<String> get availableSizes =>
@@ -48,6 +50,7 @@ class Product {
       colors: List<String>.from(map['colors'] as List),
       material: map['material'] as String,
       care: map['care'] as String,
+      category: map['category'] as String,
     );
   }
 
@@ -65,6 +68,7 @@ class Product {
       'colors': colors,
       'material': material,
       'care': care,
+      'category': category,
     };
   }
 }

@@ -16,6 +16,7 @@ final List<Product> clothingProducts = [
     colors: ['Camel', 'Charcoal', 'Black'],
     material: '80% Virgin Wool, 20% Polyamide',
     care: 'Dry clean only',
+    category: 'Outerwear',
   ),
   const Product(
     id: 'prod_02',
@@ -32,6 +33,7 @@ final List<Product> clothingProducts = [
     colors: ['Olive', 'Sandstone', 'Navy'],
     material: '65% Polyester, 35% Rayon',
     care: 'Machine wash delicate at 30°C',
+    category: 'Tailored',
   ),
   const Product(
     id: 'prod_03',
@@ -48,6 +50,7 @@ final List<Product> clothingProducts = [
     colors: ['Oatmeal', 'Heather Grey', 'Forest Green'],
     material: '100% Mongolian Cashmere',
     care: 'Hand wash cold, dry flat',
+    category: 'Knitwear',
   ),
   const Product(
     id: 'prod_04',
@@ -64,6 +67,7 @@ final List<Product> clothingProducts = [
     colors: ['Raw Indigo', 'Vintage Black'],
     material: '100% Cotton Selvedge Denim',
     care: 'Machine wash cold inside out, air dry',
+    category: 'Outerwear',
   ),
   const Product(
     id: 'prod_05',
@@ -80,6 +84,7 @@ final List<Product> clothingProducts = [
     colors: ['Sage Green', 'Dusty Rose', 'Cream'],
     material: '50% Kid Mohair, 30% Wool, 20% Recycled Nylon',
     care: 'Hand wash cold or dry clean',
+    category: 'Knitwear',
   ),
   const Product(
     id: 'prod_06',
@@ -95,6 +100,7 @@ final List<Product> clothingProducts = [
     colors: ['Optic White', 'Sky Blue Stripe', 'Soft Taupe'],
     material: '100% Long-Staple Cotton Poplin',
     care: 'Machine wash warm, iron while slightly damp',
+    category: 'Tailored',
   ),
   const Product(
     id: 'prod_07',
@@ -111,6 +117,7 @@ final List<Product> clothingProducts = [
     colors: ['Matte Black', 'Glacier Grey', 'Safety Orange'],
     material: '100% Recycled Polyamide with DWR Finish',
     care: 'Machine wash cold on gentle cycle, tumble dry low to reactivate DWR',
+    category: 'Outerwear',
   ),
   const Product(
     id: 'prod_08',
@@ -126,6 +133,7 @@ final List<Product> clothingProducts = [
     colors: ['Washed Black', 'Bone', 'Vintage Cocoa'],
     material: '100% Organic Ring-Spun Cotton',
     care: 'Machine wash cold, lay flat to dry',
+    category: 'Knitwear',
   ),
   const Product(
     id: 'prod_09',
@@ -142,6 +150,7 @@ final List<Product> clothingProducts = [
     colors: ['Terracotta', 'Ecru', 'Olive Drab'],
     material: '100% Pure Normandy Linen',
     care: 'Machine wash cold, hang to dry',
+    category: 'Tailored',
   ),
   const Product(
     id: 'prod_10',
@@ -158,6 +167,7 @@ final List<Product> clothingProducts = [
     colors: ['Ink Navy', 'Houndstooth Check', 'Sandstone'],
     material: '55% Linen, 45% Wool',
     care: 'Dry clean only',
+    category: 'Tailored',
   ),
   const Product(
     id: 'prod_11',
@@ -173,6 +183,7 @@ final List<Product> clothingProducts = [
     colors: ['Workwear Tan', 'Faded Olive', 'Off-White'],
     material: '100% Heavy Cotton Duck Canvas',
     care: 'Machine wash warm, tumble dry medium',
+    category: 'Tailored',
   ),
   const Product(
     id: 'prod_12',
@@ -189,6 +200,7 @@ final List<Product> clothingProducts = [
     colors: ['Midnight Emerald', 'Champagne', 'Onyx'],
     material: '100% Mulberry Silk Charmeuse (19mm)',
     care: 'Dry clean or gentle hand wash cold with silk detergent',
+    category: 'Tailored',
   ),
   const Product(
     id: 'prod_13',
@@ -205,6 +217,7 @@ final List<Product> clothingProducts = [
     colors: ['Off-White', 'Stormy Blue', 'Charcoal'],
     material: '100% Pure Shetland Wool',
     care: 'Hand wash cold with wool wash, reshape and dry flat',
+    category: 'Knitwear',
   ),
   const Product(
     id: 'prod_14',
@@ -220,6 +233,7 @@ final List<Product> clothingProducts = [
     colors: ['True White', 'Pitch Black', 'Heather Grey', 'Washed Navy'],
     material: '100% Long-Staple American Supima Cotton',
     care: 'Machine wash cold, tumble dry low',
+    category: 'Knitwear',
   ),
   const Product(
     id: 'prod_15',
@@ -236,6 +250,7 @@ final List<Product> clothingProducts = [
     colors: ['Distressed Espresso', 'Classic Black'],
     material: '100% Genuine Lambskin Leather, Cupro Lining',
     care: 'Specialist leather clean only',
+    category: 'Outerwear',
   ),
   const Product(
     id: 'prod_16',
@@ -251,6 +266,7 @@ final List<Product> clothingProducts = [
     colors: ['Natural Flax', 'White', 'Navy Blue'],
     material: '100% Pre-Washed European Linen',
     care: 'Machine wash cold, line dry',
+    category: 'Tailored',
   ),
   const Product(
     id: 'prod_17',
@@ -267,6 +283,7 @@ final List<Product> clothingProducts = [
     colors: ['Washed Khaki', 'Tobacco Brown', 'Slate Grey'],
     material: '100% Heavy Twill Cotton',
     care: 'Machine wash cold, hang dry',
+    category: 'Outerwear',
   ),
   const Product(
     id: 'prod_18',
@@ -283,6 +300,7 @@ final List<Product> clothingProducts = [
     colors: ['Burgundy Wine', 'Champagne Beige', 'Matte Black'],
     material: '100% Recycled Polyester Georgette',
     care: 'Hand wash cold, hang dry, do not iron pleats',
+    category: 'Tailored',
   ),
   const Product(
     id: 'prod_19',
@@ -298,6 +316,7 @@ final List<Product> clothingProducts = [
     colors: ['Heather Charcoal', 'Oatmeal Melange', 'Deep Moss'],
     material: '100% Extra-Fine Australian Merino Wool (19.5 micron)',
     care: 'Machine wash cold on wool cycle, dry flat',
+    category: 'Knitwear',
   ),
   const Product(
     id: 'prod_20',
@@ -314,5 +333,6 @@ final List<Product> clothingProducts = [
     colors: ['Deep Cobalt', 'Matte Carbon', 'Burnt Amber'],
     material: 'Shell: 100% Nylon Ripstop; Fill: 90/10 RDS Goose Down',
     care: 'Machine wash cold gentle with down wash, tumble dry low with tennis balls',
+    category: 'Outerwear',
   ),
 ];

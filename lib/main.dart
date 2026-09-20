@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:e_commerce_app/data/product_data.dart';
+import 'package:e_commerce_app/models/product_model.dart';
 import 'package:e_commerce_app/widgets/item_card.dart';
 import 'package:e_commerce_app/screens/product_details_screens.dart';
 import 'package:e_commerce_app/screens/cart_screens.dart';
@@ -92,6 +93,16 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
     'Knitwear',
     'Accessories',
   ];
+
+  List<Product> get _filteredProducts {
+    final selectedCategory = _chips[_selectedChipIndex];
+    if (selectedCategory == 'All Pieces') {
+      return clothingProducts;
+    }
+    return clothingProducts
+        .where((product) => product.category == selectedCategory)
+        .toList();
+  }
 
   void _showClaimedSnackBar(String message) {
     ScaffoldMessenger.of(context)
@@ -390,56 +401,66 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: GridView.builder(
-          itemCount: clothingProducts.length,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 18,
-            childAspectRatio: 0.65,
-          ),
-          itemBuilder: (context, itemIdx) {
-            final product = clothingProducts[itemIdx];
-            return InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProductDetailsScreen(product: product),
+        child: _filteredProducts.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Center(
+                  child: Text(
+                    'No pieces found in this category yet.',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                   ),
-                );
-              },
-              child: AnimatedBuilder(
-                animation: WishlistManager(),
-                builder: (context, _) => ProductItemCard(
-                  product: product,
-                  isFavorite: WishlistManager().isFavorite(product.id),
-                  onFavoriteTap: () {
-                    final added = WishlistManager().toggle(product);
-                    showWishlistSnackBar(context, added);
-                  },
-                  onAddTap: () {
-                    CartManager().add(
-                      product,
-                      product.defaultSize,
-                      product.defaultColor,
-                    );
-                    ScaffoldMessenger.of(context)
-                      ..clearSnackBars()
-                      ..showSnackBar(
-                        SnackBar(
-                          content: Text('${product.title} added to bag'),
-                          duration: const Duration(seconds: 1),
+                ),
+              )
+            : GridView.builder(
+                itemCount: _filteredProducts.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 18,
+                  childAspectRatio: 0.65,
+                ),
+                itemBuilder: (context, itemIdx) {
+                  final product = _filteredProducts[itemIdx];
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetailsScreen(product: product),
                         ),
                       );
-                  },
-                ),
+                    },
+                    child: AnimatedBuilder(
+                      animation: WishlistManager(),
+                      builder: (context, _) => ProductItemCard(
+                        product: product,
+                        isFavorite: WishlistManager().isFavorite(product.id),
+                        onFavoriteTap: () {
+                          final added = WishlistManager().toggle(product);
+                          showWishlistSnackBar(context, added);
+                        },
+                        onAddTap: () {
+                          CartManager().add(
+                            product,
+                            product.defaultSize,
+                            product.defaultColor,
+                          );
+                          ScaffoldMessenger.of(context)
+                            ..clearSnackBars()
+                            ..showSnackBar(
+                              SnackBar(
+                                content: Text('${product.title} added to bag'),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                        },
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
       Container(
         margin: const EdgeInsets.all(16),
