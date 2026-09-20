@@ -1,17 +1,32 @@
-# e_commerce_app
+Zorix - E-Commerce App
 
-A new Flutter project.
+A simple Flutter e-commerce app for browsing and shopping clothing products.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Features
+Discover - Home screen with featured collections, vouchers, and offers
+Explore - Search products by title, brand, or description
+Bag - Cart with quantity management
+Orders - View past orders
+Wishlist - Save favorite products
+Profile - User profile screen
+Product details with size, color, and material info
+Project Structure
+lib/
+  main.dart                 # App entry point, bottom navigation, home screen
+  data/
+    product_data.dart       # Sample product catalog
+  models/
+    product_model.dart      # Product data model
+    cart_item_model.dart    # Cart item data model
+    order_model.dart        # Order data model
+  screens/
+    explore_screen.dart     # Search and browse products
+    cart_screens.dart       # Cart / bag screen
+    orders_screen.dart      # Orders screen
+    profile_screen.dart     # Profile screen
+    wishlist_screen.dart    # Wishlist screen
+    product_details_screens.dart  # Product detail view
+  widgets/
+    item_card.dart          # Reusable product card
+  utils/
+    app_nav.dart             # Bottom navigation state
