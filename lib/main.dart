@@ -6,6 +6,8 @@ import 'package:e_commerce_app/screens/cart_screens.dart';
 import 'package:e_commerce_app/screens/orders_screen.dart';
 import 'package:e_commerce_app/screens/profile_screen.dart';
 import 'package:e_commerce_app/utils/app_nav.dart';
+import 'dart:async';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(
@@ -402,57 +404,11 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
               style: TextStyle(color: Colors.white60, fontSize: 10),
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                for (final unit in [
-                  {'val': '01', 'unit': 'DAYS'},
-                  {'val': '14', 'unit': 'HOURS'},
-                  {'val': '30', 'unit': 'MINS'}
-                ]) ...[
-                  Container(
-                    width: 50,
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    decoration: BoxDecoration(color: const Color(0xFF232323), borderRadius: BorderRadius.circular(6)),
-                    child: Column(
-                      children: [
-                        Text(unit['val']!,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                        Text(unit['unit']!, style: const TextStyle(color: Colors.white54, fontSize: 7)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ]
+             VipCountdownCard()
               ],
             ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFBC4B27),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    ),
-                    child: const Text('Claim VIP Reservation',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  decoration: BoxDecoration(border: Border.all(color: Colors.white24), shape: BoxShape.circle),
-                  child: IconButton(
-                    icon: const Icon(Icons.share_outlined, color: Colors.white, size: 16),
-                    onPressed: () {},
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
+          
       const Padding(
         padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
         child: Row(
@@ -622,6 +578,200 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
         itemCount: sections.length,
         itemBuilder: (context, index) => sections[index],
       ),
+    );
+  }
+}
+
+class VipCountdownCard extends StatefulWidget {
+  const VipCountdownCard({super.key});
+
+  @override
+  State<VipCountdownCard> createState() => _VipCountdownCardState();
+}
+
+class _VipCountdownCardState extends State<VipCountdownCard> {
+  Timer? _timer;
+  Duration _remainingTime = const Duration(days: 1, hours: 14, minutes: 30);
+  final String _couponCode = 'VIP2026';
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_remainingTime.inSeconds > 0) {
+        setState(() {
+          _remainingTime = _remainingTime - const Duration(seconds: 1);
+        });
+      } else {
+        _timer?.cancel();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _showCouponDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.stars_rounded, color: Color(0xFFBC4B27)),
+            SizedBox(width: 8),
+            Text(
+              'VIP Offer Unlocked',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Use this coupon code at checkout to claim your VIP reservation discount:',
+              style: TextStyle(color: Colors.white70, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2C2C2C),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFBC4B27).withOpacity(0.5)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _couponCode,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.copy_rounded, color: Colors.white70, size: 20),
+                    tooltip: 'Copy Code',
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: _couponCode));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Coupon code copied to clipboard!'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFBC4B27),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Apply Now'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final days = _remainingTime.inDays.toString().padLeft(2, '0');
+    final hours = (_remainingTime.inHours % 24).toString().padLeft(2, '0');
+    final mins = (_remainingTime.inMinutes % 60).toString().padLeft(2, '0');
+    final secs = (_remainingTime.inSeconds % 60).toString().padLeft(2, '0');
+
+    final timeUnits = [
+      {'val': days, 'unit': 'DAYS'},
+      {'val': hours, 'unit': 'HOURS'},
+      {'val': mins, 'unit': 'MINS'},
+      {'val': secs, 'unit': 'SECS'},
+    ];
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (int i = 0; i < timeUnits.length; i++) ...[
+              Container(
+                width: 50,
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF232323),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      timeUnits[i]['val']!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      timeUnits[i]['unit']!,
+                      style: const TextStyle(color: Colors.white54, fontSize: 7),
+                    ),
+                  ],
+                ),
+              ),
+              if (i < timeUnits.length - 1) const SizedBox(width: 8),
+            ],
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: _showCouponDialog,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFBC4B27),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: const Text(
+                  'Claim VIP Reservation',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
