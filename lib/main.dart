@@ -196,7 +196,7 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                         ),
                         const SizedBox(height: 14),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () => AppNav.tab.value = AppNav.explore,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: Colors.black,
@@ -466,26 +466,42 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                 ),
               ),
             ),
-            const Positioned(
+            Positioned(
               bottom: 16,
               left: 16,
               right: 16,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('WINTER COLLECTIONS ARE OUT',
-                      style: TextStyle(color: Colors.white60, fontSize: 8, letterSpacing: 1.2)),
-                  SizedBox(height: 4),
-                  Text('Luxury items for luxury people.',
-                      style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 4),
-                  Text('The best for your friends and family.',
-                      style: TextStyle(color: Colors.white70, fontSize: 10)),
-                  SizedBox(height: 10),
-                  Text('Explore Collections →',
-                      style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                ],
-              ),
+                  const Text(
+                    'WINTER COLLECTIONS ARE OUT',
+                      style: TextStyle(color: Colors.white60, fontSize: 8, letterSpacing: 1.2),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Luxury items for luxury people.',
+                      style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'The best for your friends and family.',
+                      style: TextStyle(color: Colors.white70, fontSize: 10),
+                    ),
+                    const SizedBox(height: 6),
+                    TextButton(
+                      onPressed: () => AppNav.tab.value = AppNav.explore,
+                      style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text(
+                        'Explore Collections →',
+                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                )
             ),
           ],
         ),
