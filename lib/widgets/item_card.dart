@@ -5,12 +5,14 @@ class ProductItemCard extends StatelessWidget {
   final Product product;
   final VoidCallback? onFavoriteTap;
   final VoidCallback? onAddTap;
+  final bool isFavorite;
 
   const ProductItemCard({
     super.key,
     required this.product,
     this.onFavoriteTap,
     this.onAddTap,
+    this.isFavorite = false,
   });
 
   @override
@@ -74,9 +76,9 @@ class ProductItemCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         color: Colors.black.withValues(alpha: 0.2),
                       ),
-                      child: const Icon(
-                        Icons.favorite_border,
-                        color: Colors.white,
+                      child: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite ? const Color(0xFFBC4B27) : Colors.white,
                         size: 15,
                       ),
                     ),

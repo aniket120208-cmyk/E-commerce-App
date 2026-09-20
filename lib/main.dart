@@ -5,6 +5,7 @@ import 'package:e_commerce_app/screens/product_details_screens.dart';
 import 'package:e_commerce_app/screens/cart_screens.dart';
 import 'package:e_commerce_app/screens/orders_screen.dart';
 import 'package:e_commerce_app/screens/profile_screen.dart';
+import 'package:e_commerce_app/screens/wishlist_screen.dart';
 import 'package:e_commerce_app/utils/app_nav.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
@@ -409,24 +410,31 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                   ),
                 );
               },
-              child: ProductItemCard(
-                product: product,
-                onFavoriteTap: () {},
-                onAddTap: () {
-                  CartManager().add(
-                    product,
-                    product.defaultSize,
-                    product.defaultColor,
-                  );
-                  ScaffoldMessenger.of(context)
-                    ..clearSnackBars()
-                    ..showSnackBar(
-                      SnackBar(
-                        content: Text('${product.title} added to bag'),
-                        duration: const Duration(seconds: 1),
-                      ),
+              child: AnimatedBuilder(
+                animation: WishlistManager(),
+                builder: (context, _) => ProductItemCard(
+                  product: product,
+                  isFavorite: WishlistManager().isFavorite(product.id),
+                  onFavoriteTap: () {
+                    final added = WishlistManager().toggle(product);
+                    showWishlistSnackBar(context, added);
+                  },
+                  onAddTap: () {
+                    CartManager().add(
+                      product,
+                      product.defaultSize,
+                      product.defaultColor,
                     );
-                },
+                    ScaffoldMessenger.of(context)
+                      ..clearSnackBars()
+                      ..showSnackBar(
+                        SnackBar(
+                          content: Text('${product.title} added to bag'),
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                  },
+                ),
               ),
             );
           },
@@ -514,13 +522,31 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
         ),
         actions: [
           IconButton(icon: const Icon(Icons.search, color: Colors.black, size: 20), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.favorite_border, color: Colors.black, size: 20), onPressed: () {}),
-          const Padding(
-            padding: EdgeInsets.only(right: 16, left: 4),
-            child: CircleAvatar(
-              radius: 13,
-              backgroundColor: Color(0xFFD6A284),
-              child: Icon(Icons.person, size: 16, color: Colors.white),
+          AnimatedBuilder(
+            animation: WishlistManager(),
+            builder: (context, _) => IconButton(
+              icon: Badge(
+                label: Text('${WishlistManager().itemCount}'),
+                isLabelVisible: WishlistManager().itemCount > 0,
+                child: const Icon(Icons.favorite_border, color: Colors.black, size: 20),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const WishlistScreen()),
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 16, left: 4),
+            child: GestureDetector(
+              onTap: () => AppNav.tab.value = AppNav.profile,
+              child: const CircleAvatar(
+                radius: 13,
+                backgroundColor: Color(0xFFD6A284),
+                child: Icon(Icons.person, size: 16, color: Colors.white),
+              ),
             ),
           ),
         ],

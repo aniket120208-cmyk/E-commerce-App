@@ -3,6 +3,7 @@ import 'package:e_commerce_app/models/product_model.dart';
 import 'package:e_commerce_app/data/product_data.dart';
 import 'package:e_commerce_app/widgets/item_card.dart';
 import 'package:e_commerce_app/screens/cart_screens.dart';
+import 'package:e_commerce_app/screens/wishlist_screen.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final Product product;
@@ -19,7 +20,6 @@ class ProductDetailsScreen extends StatefulWidget {
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   int _selectedSize = 0;
   int _selectedColor = 0;
-  bool _isFavorite = false;
 
   final List<Color> _swatches = [
     const Color(0xFF2C2420),
@@ -96,10 +96,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   );
                 },
               ),
-              _CircleBtn(
-                icon: _isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: _isFavorite ? const Color(0xFFBC4B27) : Colors.black,
-                onTap: () => setState(() => _isFavorite = !_isFavorite),
+              AnimatedBuilder(
+                animation: WishlistManager(),
+                builder: (context, _) {
+                  final isFavorite = WishlistManager().isFavorite(product.id);
+                  return _CircleBtn(
+                    icon: isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? const Color(0xFFBC4B27) : Colors.black,
+                    onTap: () {
+                      final added = WishlistManager().toggle(product);
+                      showWishlistSnackBar(context, added);
+                    },
+                  );
+                },
               ),
               const SizedBox(width: 8),
             ],
@@ -397,24 +406,31 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 ),
                               );
                             },
-                            child: ProductItemCard(
-                              product: relatedItem,
-                              onFavoriteTap: () {},
-                              onAddTap: () {
-                                CartManager().add(
-                                  relatedItem,
-                                  relatedItem.defaultSize,
-                                  relatedItem.defaultColor,
-                                );
-                                ScaffoldMessenger.of(context)
-                                  ..clearSnackBars()
-                                  ..showSnackBar(
-                                    SnackBar(
-                                      content: Text('${relatedItem.title} added to bag'),
-                                      duration: const Duration(seconds: 1),
-                                    ),
+                            child: AnimatedBuilder(
+                              animation: WishlistManager(),
+                              builder: (context, _) => ProductItemCard(
+                                product: relatedItem,
+                                isFavorite: WishlistManager().isFavorite(relatedItem.id),
+                                onFavoriteTap: () {
+                                  final added = WishlistManager().toggle(relatedItem);
+                                  showWishlistSnackBar(context, added);
+                                },
+                                onAddTap: () {
+                                  CartManager().add(
+                                    relatedItem,
+                                    relatedItem.defaultSize,
+                                    relatedItem.defaultColor,
                                   );
-                              },
+                                  ScaffoldMessenger.of(context)
+                                    ..clearSnackBars()
+                                    ..showSnackBar(
+                                      SnackBar(
+                                        content: Text('${relatedItem.title} added to bag'),
+                                        duration: const Duration(seconds: 1),
+                                      ),
+                                    );
+                                },
+                              ),
                             ),
                           ),
                         );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:e_commerce_app/models/order_model.dart';
+import 'package:e_commerce_app/screens/wishlist_screen.dart';
 import 'package:e_commerce_app/utils/app_nav.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -8,22 +9,7 @@ class ProfileScreen extends StatelessWidget {
   static const String _name = 'Aniket Tiwari';
   static const String _email = 'aniket120208@gmail.com';
   static const String _phone = '+91 9101572842';
-  static const int _wishlist = 0;
   static const int _points = 0;
-
-  void _demoTap(BuildContext context, String label) {
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(
-        SnackBar(
-          content: Text('$label'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.black,
-          duration: const Duration(seconds: 1),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +34,14 @@ class ProfileScreen extends StatelessWidget {
           _sectionLabel('ACCOUNT'),
           _menuCard([
             _MenuItem(Icons.local_shipping_outlined, 'My Orders', () => AppNav.tab.value = AppNav.orders),
-            _MenuItem(Icons.favorite_border, 'Wishlist', () => _demoTap(context, 'Wishlist')),
+            _MenuItem(
+              Icons.favorite_border,
+              'Wishlist',
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const WishlistScreen()),
+              ),
+            ),
           ]),
           const SizedBox(height: 12),
           const Center(
@@ -109,7 +102,7 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _stats() {
     return AnimatedBuilder(
-      animation: OrderManager(),
+      animation: Listenable.merge([OrderManager(), WishlistManager()]),
       builder: (context, _) {
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -122,7 +115,7 @@ class ProfileScreen extends StatelessWidget {
             children: [
               _stat('${OrderManager().orders.length}', 'ORDERS'),
               _divider(),
-              _stat('$_wishlist', 'WISHLIST'),
+              _stat('${WishlistManager().itemCount}', 'WISHLIST'),
               _divider(),
               _stat('$_points', 'POINTS'),
             ],
