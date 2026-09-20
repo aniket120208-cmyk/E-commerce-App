@@ -1,23 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:e_commerce_app/models/product_model.dart';
 
 class ProductItemCard extends StatelessWidget {
-  final String brand;
-  final String title;
-  final String price;
-  final String originalPrice;
-  final String discountTag;
-  final String imageUrl;
+  final Product product;
   final VoidCallback? onFavoriteTap;
   final VoidCallback? onAddTap;
 
   const ProductItemCard({
     super.key,
-    required this.brand,
-    required this.title,
-    required this.price,
-    required this.originalPrice,
-    required this.discountTag,
-    required this.imageUrl,
+    required this.product,
     this.onFavoriteTap,
     this.onAddTap,
   });
@@ -34,30 +25,44 @@ class ProductItemCard extends StatelessWidget {
               children: [
                 Positioned.fill(
                   child: Image.network(
-                    imageUrl,
+                    product.image,
                     fit: BoxFit.cover,
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return Container(
+                        color: Colors.grey.shade200,
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey.shade300,
+                      child: const Icon(Icons.broken_image, color: Colors.grey),
+                    ),
                   ),
                 ),
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFBC4B27),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      discountTag,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+                if (product.badge != null && product.badge!.isNotEmpty)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFBC4B27),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        product.badge!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ),
                   ),
-                ),
                 Positioned(
                   top: 6,
                   right: 6,
@@ -106,7 +111,7 @@ class ProductItemCard extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          brand,
+          product.brand,
           style: const TextStyle(
             color: Colors.grey,
             fontSize: 8,
@@ -116,7 +121,7 @@ class ProductItemCard extends StatelessWidget {
         ),
         const SizedBox(height: 2),
         Text(
-          title,
+          product.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
@@ -129,7 +134,7 @@ class ProductItemCard extends StatelessWidget {
         Row(
           children: [
             Text(
-              price,
+              product.price,
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -138,7 +143,7 @@ class ProductItemCard extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             Text(
-              originalPrice,
+              product.originalPrice,
               style: const TextStyle(
                 fontSize: 11,
                 color: Colors.grey,

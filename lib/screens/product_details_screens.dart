@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:e_commerce_app/models/product_model.dart';
+import 'package:e_commerce_app/data/product_data.dart';
+import 'package:e_commerce_app/widgets/item_card.dart';
+import 'package:e_commerce_app/screens/cart_screens.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
-  final Map<String, String> product;
+  final Product product;
 
   const ProductDetailsScreen({
     super.key,
@@ -13,28 +17,63 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
-  int _selectedSize = 1;
+  int _selectedSize = 0;
   int _selectedColor = 0;
   bool _isFavorite = false;
 
-  final List<String> _sizes = ['XS', 'S', 'M', 'L', 'XL'];
   final List<Color> _swatches = [
     const Color(0xFF2C2420),
     const Color(0xFFEDEAE4),
     const Color(0xFFBC4B27),
   ];
 
+  void _handleAddToCart() {
+    final sizes = widget.product.availableSizes;
+    final colors = widget.product.availableColors;
+
+    final chosenSize = sizes[_selectedSize.clamp(0, sizes.length - 1)];
+    final chosenColor = colors[_selectedColor.clamp(0, colors.length - 1)];
+
+    CartManager().add(widget.product, chosenSize, chosenColor);
+
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.black,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          content: Text('${widget.product.title} added to bag'),
+          duration: const Duration(seconds: 2),
+          // Snackbars with an action stay forever by default (Flutter 3.29+).
+          persist: false,
+          action: SnackBarAction(
+            label: 'VIEW BAG',
+            textColor: const Color(0xFFBC4B27),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CartScreen()),
+              );
+            },
+          ),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     final product = widget.product;
-    final price = product['price'] ?? '\$0';
-    final oldPrice = product['originalPrice'];
+    final price = product.price;
+    final oldPrice = product.originalPrice;
+    final sizes = product.availableSizes;
+    final relatedProducts = clothingProducts.where((p) => p.id != product.id).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FB),
       bottomNavigationBar: _CartBar(
         price: price,
-        onAddToCart: () {},
+        onAddToCart: _handleAddToCart,
       ),
       body: CustomScrollView(
         slivers: [
@@ -49,13 +88,18 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
             actions: [
               _CircleBtn(
+                icon: Icons.shopping_bag_outlined,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CartScreen()),
+                  );
+                },
+              ),
+              _CircleBtn(
                 icon: _isFavorite ? Icons.favorite : Icons.favorite_border,
                 color: _isFavorite ? const Color(0xFFBC4B27) : Colors.black,
                 onTap: () => setState(() => _isFavorite = !_isFavorite),
-              ),
-              _CircleBtn(
-                icon: Icons.share_outlined,
-                onTap: () {},
               ),
               const SizedBox(width: 8),
             ],
@@ -64,11 +108,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 fit: StackFit.expand,
                 children: [
                   Image.network(
-                    product['image'] ??
-                        'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=500&q=80',
+                    product.image,
                     fit: BoxFit.cover,
                   ),
-                  if (product['badge'] != null)
+                  if (product.badge != null)
                     Positioned(
                       bottom: 16,
                       left: 16,
@@ -82,7 +125,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          product['badge']!,
+                          product.badge!,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
@@ -103,7 +146,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    product['brand']?.toUpperCase() ?? 'ZORIX STUDIO',
+                    product.brand.toUpperCase(),
                     style: const TextStyle(
                       color: Colors.grey,
                       fontSize: 10,
@@ -113,7 +156,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    product['title'] ?? 'Product Name',
+                    product.title,
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -131,17 +174,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           color: Color(0xFFBC4B27),
                         ),
                       ),
-                      if (oldPrice != null) ...[
-                        const SizedBox(width: 8),
-                        Text(
-                          oldPrice,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                            decoration: TextDecoration.lineThrough,
-                          ),
+                      const SizedBox(width: 8),
+                      Text(
+                        oldPrice,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                          decoration: TextDecoration.lineThrough,
                         ),
-                      ],
+                      ),
                       const Spacer(),
                       const Icon(Icons.star, size: 16, color: Colors.amber),
                       const SizedBox(width: 4),
@@ -169,7 +210,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                   const SizedBox(height: 10),
                   Row(
-                    children: List.generate(_swatches.length, (i) {
+                    children: List.generate(
+                      product.availableColors.length.clamp(0, _swatches.length),
+                      (i) {
                       final isSelected = _selectedColor == i;
                       return GestureDetector(
                         onTap: () => setState(() => _selectedColor = i),
@@ -219,7 +262,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ),
                   const SizedBox(height: 10),
                   Row(
-                    children: List.generate(_sizes.length, (i) {
+                    children: List.generate(sizes.length, (i) {
                       final isSelected = _selectedSize == i;
                       return GestureDetector(
                         onTap: () => setState(() => _selectedSize = i),
@@ -236,7 +279,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             ),
                           ),
                           child: Text(
-                            _sizes[i],
+                            sizes[i],
                             style: TextStyle(
                               color: isSelected ? Colors.white : Colors.black,
                               fontSize: 12,
@@ -257,12 +300,28 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Crafted from sustainably sourced Italian fabric with precision stitching. Engineered with an unstructured silhouette, soft dropped shoulders, and natural horn buttons for seamless layering across seasons.',
-                    style: TextStyle(
+                  Text(
+                    product.description,
+                    style: const TextStyle(
                       color: Colors.black87,
                       fontSize: 13,
                       height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'Material: ${product.material}',
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Care: ${product.care}',
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontSize: 12,
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -296,6 +355,72 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 30),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'YOU MAY ALSO LIKE',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      Text(
+                        'See all',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    height: 250,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: relatedProducts.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                      itemBuilder: (context, i) {
+                        final relatedItem = relatedProducts[i];
+                        return SizedBox(
+                          width: 150,
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProductDetailsScreen(product: relatedItem),
+                                ),
+                              );
+                            },
+                            child: ProductItemCard(
+                              product: relatedItem,
+                              onFavoriteTap: () {},
+                              onAddTap: () {
+                                CartManager().add(
+                                  relatedItem,
+                                  relatedItem.defaultSize,
+                                  relatedItem.defaultColor,
+                                );
+                                ScaffoldMessenger.of(context)
+                                  ..clearSnackBars()
+                                  ..showSnackBar(
+                                    SnackBar(
+                                      content: Text('${relatedItem.title} added to bag'),
+                                      duration: const Duration(seconds: 1),
+                                    ),
+                                  );
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -323,7 +448,7 @@ class _CircleBtn extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(6),
       child: Material(
-        color: Colors.white.withValues(alpha: 0.9),
+        color: Colors.white.withOpacity(0.9),
         shape: const CircleBorder(),
         child: InkWell(
           customBorder: const CircleBorder(),
