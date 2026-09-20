@@ -6,6 +6,7 @@ import 'package:e_commerce_app/screens/cart_screens.dart';
 import 'package:e_commerce_app/screens/orders_screen.dart';
 import 'package:e_commerce_app/screens/profile_screen.dart';
 import 'package:e_commerce_app/screens/wishlist_screen.dart';
+import 'package:e_commerce_app/screens/explore_screen.dart';
 import 'package:e_commerce_app/utils/app_nav.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
@@ -29,7 +30,7 @@ class MainNavScreen extends StatefulWidget {
 class _MainNavScreenState extends State<MainNavScreen> {
   final List<Widget> _screens = const [
     ZorixHomeScreen(),
-    Center(child: Text('Explore')),
+    ExploreScreen(),
     CartScreen(),
     OrdersScreen(),
     ProfileScreen(),
@@ -521,7 +522,10 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
           ],
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.search, color: Colors.black, size: 20), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.search, color: Colors.black, size: 20),
+            onPressed: () => AppNav.tab.value = AppNav.explore,
+          ),
           AnimatedBuilder(
             animation: WishlistManager(),
             builder: (context, _) => IconButton(
