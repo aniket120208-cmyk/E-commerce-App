@@ -39,35 +39,35 @@ class _MainNavScreenState extends State<MainNavScreen> {
     return ValueListenableBuilder<int>(
       valueListenable: AppNav.tab,
       builder: (context, currentIndex, _) => Scaffold(
-      body: IndexedStack(index: currentIndex, children: _screens),
-      bottomNavigationBar: AnimatedBuilder(
-        animation: CartManager(),
-        builder: (context, _) {
-          return BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: currentIndex,
-            onTap: (index) => AppNav.tab.value = index,
-            selectedItemColor: Colors.black,
-            unselectedItemColor: Colors.grey,
-            selectedFontSize: 10,
-            unselectedFontSize: 10,
-            items: [
-              const BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded, size: 20), label: 'DISCOVER'),
-              const BottomNavigationBarItem(icon: Icon(Icons.search, size: 20), label: 'EXPLORE'),
-              BottomNavigationBarItem(
-                icon: Badge(
-                  label: Text('${CartManager().itemCount}'),
-                  isLabelVisible: CartManager().itemCount > 0,
-                  child: const Icon(Icons.shopping_bag_outlined, size: 20),
+        body: IndexedStack(index: currentIndex, children: _screens),
+        bottomNavigationBar: AnimatedBuilder(
+          animation: CartManager(),
+          builder: (context, _) {
+            return BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              currentIndex: currentIndex,
+              onTap: (index) => AppNav.tab.value = index,
+              selectedItemColor: Colors.black,
+              unselectedItemColor: Colors.grey,
+              selectedFontSize: 10,
+              unselectedFontSize: 10,
+              items: [
+                const BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded, size: 20), label: 'DISCOVER'),
+                const BottomNavigationBarItem(icon: Icon(Icons.search, size: 20), label: 'EXPLORE'),
+                BottomNavigationBarItem(
+                  icon: Badge(
+                    label: Text('${CartManager().itemCount}'),
+                    isLabelVisible: CartManager().itemCount > 0,
+                    child: const Icon(Icons.shopping_bag_outlined, size: 20),
+                  ),
+                  label: 'BAG',
                 ),
-                label: 'BAG',
-              ),
-              const BottomNavigationBarItem(icon: Icon(Icons.local_shipping_outlined, size: 20), label: 'ORDERS'),
-              const BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 20), label: 'PROFILE'),
-            ],
-          );
-        },
-      ),
+                const BottomNavigationBarItem(icon: Icon(Icons.local_shipping_outlined, size: 20), label: 'ORDERS'),
+                const BottomNavigationBarItem(icon: Icon(Icons.person_outline, size: 20), label: 'PROFILE'),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -81,16 +81,7 @@ class ZorixHomeScreen extends StatefulWidget {
 }
 
 class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
-  int _selectedCategoryIndex = 0;
   int _selectedChipIndex = 0;
-
-  final List<Map<String, dynamic>> _categories = const [
-    {'title': 'NEW IN', 'icon': Icons.local_fire_department},
-    {'title': 'BESTSELLERS', 'icon': Icons.bolt},
-    {'title': 'OUTERWEAR', 'icon': Icons.checkroom},
-    {'title': 'TAILORING', 'icon': Icons.military_tech_outlined},
-    {'title': 'NEW DROP', 'icon': Icons.accessibility_new},
-  ];
 
   final List<String> _chips = const [
     'All Pieces',
@@ -99,6 +90,17 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
     'Knitwear',
     'Accessories',
   ];
+
+  void _showClaimedSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,55 +123,6 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
               ),
             ),
           ],
-        ),
-      ),
-      SizedBox(
-        height: 86,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          itemCount: _categories.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 14),
-          itemBuilder: (context, index) {
-            final cat = _categories[index];
-            final bool active = _selectedCategoryIndex == index;
-            return GestureDetector(
-              onTap: () => setState(() => _selectedCategoryIndex = index),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: active ? const Color(0xFFBC4B27) : Colors.grey.shade300,
-                        width: 1.5,
-                      ),
-                    ),
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: active ? const Color(0xFFBC4B27) : const Color(0xFFEDEAE4),
-                      child: Icon(
-                        cat['icon'] as IconData,
-                        size: 16,
-                        color: active ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    cat['title'] as String,
-                    style: TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
-                      color: active ? const Color(0xFFBC4B27) : Colors.black87,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
         ),
       ),
       Padding(
@@ -296,13 +249,16 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                       style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                   const Text('Min. order \$120 on all collections',
                       style: TextStyle(color: Colors.white, fontSize: 9), maxLines: 1),
-                  Container(
-                    width: double.infinity,
-                    height: 24,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                    child: const Text('CLAIM',
-                        style: TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.bold)),
+                  GestureDetector(
+                    onTap: () => _showClaimedSnackBar('Your \$25 OFF offer is claimed!'),
+                    child: Container(
+                      width: double.infinity,
+                      height: 24,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                      child: const Text('CLAIM',
+                          style: TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.bold)),
+                    ),
                   ),
                 ],
               ),
@@ -328,13 +284,16 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                       style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                   const Text('Applies automatically to Silk & Cashmere',
                       style: TextStyle(color: Colors.white, fontSize: 9), maxLines: 1),
-                  Container(
-                    width: double.infinity,
-                    height: 24,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(12)),
-                    child: const Text('CLAIM',
-                        style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                  GestureDetector(
+                    onTap: () => _showClaimedSnackBar('Your 15% EXTRA offer is claimed!'),
+                    child: Container(
+                      width: double.infinity,
+                      height: 24,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(12)),
+                      child: const Text('CLAIM',
+                          style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                    ),
                   ),
                 ],
               ),
@@ -384,10 +343,10 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
           color: const Color(0xFF141414),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Column(
+        child: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('• PRIVATE ZORIX DROP',
@@ -395,20 +354,19 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                 Text('LIMITED 150 UNITS', style: TextStyle(color: Colors.white54, fontSize: 8)),
               ],
             ),
-            const SizedBox(height: 6),
-            const Text('The Tuscan Silk Capsule',
+            SizedBox(height: 6),
+            Text('The Tuscan Silk Capsule',
                 style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            const Text(
+            SizedBox(height: 4),
+            Text(
               'Numbered edition of 150 units. Pure raw mulberry silk tailored in Florence.',
               style: TextStyle(color: Colors.white60, fontSize: 10),
             ),
-            const SizedBox(height: 12),
-             VipCountdownCard()
-              ],
-            ),
+            SizedBox(height: 12),
+            VipCountdownCard(),
+          ],
+        ),
       ),
-          
       const Padding(
         padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
         child: Row(
@@ -423,13 +381,6 @@ class _ZorixHomeScreenState extends State<ZorixHomeScreen> {
                 ),
                 SizedBox(height: 2),
                 Text('Curated Essentials', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(Icons.tune, size: 14, color: Colors.grey),
-                SizedBox(width: 4),
-                Text('Filter & Sort', style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.w600)),
               ],
             ),
           ],
@@ -621,7 +572,7 @@ class _VipCountdownCardState extends State<VipCountdownCard> {
   void _showCouponDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E1E),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(
@@ -648,7 +599,7 @@ class _VipCountdownCardState extends State<VipCountdownCard> {
               decoration: BoxDecoration(
                 color: const Color(0xFF2C2C2C),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFBC4B27).withOpacity(0.5)),
+                border: Border.all(color: const Color(0xFFBC4B27).withValues(alpha: 0.5)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -667,7 +618,7 @@ class _VipCountdownCardState extends State<VipCountdownCard> {
                     tooltip: 'Copy Code',
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: _couponCode));
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      ScaffoldMessenger.of(dialogContext).showSnackBar(
                         const SnackBar(
                           content: Text('Coupon code copied to clipboard!'),
                           duration: Duration(seconds: 2),
@@ -682,12 +633,21 @@ class _VipCountdownCardState extends State<VipCountdownCard> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Close', style: TextStyle(color: Colors.white54)),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              final messenger = ScaffoldMessenger.of(dialogContext);
+              Navigator.of(dialogContext).pop();
+              messenger
+                ..clearSnackBars()
+                ..showSnackBar(
+                  const SnackBar(
+                    content: Text('Your VIP offer is claimed!'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFBC4B27),
